@@ -5,6 +5,28 @@ import React from "react";
 function UseState({ name }) {
     // Se crea un estado de error 
     const [error, setError] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+
+    // Se utiliza el React Hook para el efecto de loading
+    // El segundo argumento indica cunado se par generea el efecto o función
+    React.useEffect(() => {
+        console.log('Empezando el efecto')
+
+        if(!!loading) {
+            // Recibe dos argumentos la funcion y el intervalo de cafa cuanto s ejecuta la misma
+            setTimeout(() => {
+                console.log('Empezando validación')
+
+                setLoading(false);
+
+                console.log('Terminando validación')
+            }, 3000)
+        }
+        
+        console.log('Terminando el efecto')
+    
+    // Para que se ejecute el efecto solo cuando se actualiza el esato de carga
+    }, [loading]);
 
     return (
         <div>
@@ -14,9 +36,13 @@ function UseState({ name }) {
             <p>Por favor escribe el código de seguridad</p>
 
             {/* Si error es verdadero renderiza */}
-
             {error && (
                 <p>Error: El código es incorrecto</p>
+            )}
+
+            {/* Si loading es verdadero */}
+            {loading && (
+                <p>Cargando... </p>
             )}
 
             <input placeholder="Código de seguridad"/>
@@ -24,7 +50,7 @@ function UseState({ name }) {
                 // Actualizar estado con un evento onClick en el boton 
                 // Funciones "prevState" dentro de los actualizadores del estado para la función setError
                 // "setError(prevState => !prevState)"
-                onClick={() => setError(!error)}
+                onClick={() => setLoading(true)}
             >Comprobar</button>
         </div>
     );
