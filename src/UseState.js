@@ -1,11 +1,16 @@
 import React from "react";
 
+const SECURITY_CODE = "paradigma"
+
 // creando componente usando funciones
 // Se definen las propiedades
 function UseState({ name }) {
+    const [value, setValue] = React.useState('');
     // Se crea un estado de error 
     const [error, setError] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+
+    console.log(value)
 
     // Se utiliza el React Hook para el efecto de loading
     // El segundo argumento indica cunado se par generea el efecto o función
@@ -17,8 +22,14 @@ function UseState({ name }) {
             setTimeout(() => {
                 console.log('Empezando validación')
 
-                setLoading(false);
-
+                if (value === SECURITY_CODE){
+                    setLoading(false);
+                    // setError(false);
+                } else {
+                    setError(true);
+                    setLoading(false);
+                }
+                
                 console.log('Terminando validación')
             }, 3000)
         }
@@ -36,7 +47,7 @@ function UseState({ name }) {
             <p>Por favor escribe el código de seguridad</p>
 
             {/* Si error es verdadero renderiza */}
-            {error && (
+            {(error && !loading) && (
                 <p>Error: El código es incorrecto</p>
             )}
 
@@ -45,12 +56,25 @@ function UseState({ name }) {
                 <p>Cargando... </p>
             )}
 
-            <input placeholder="Código de seguridad"/>
+            <input 
+                placeholder="Código de seguridad"
+                value={value}
+                // Actualizador del estado cuando los uarios cambien lo que escriben en el input
+                // se recibe el evento
+                onChange={(event) => {
+                    // setError(false);
+                    // el nuevo valor
+                    setValue(event.target.value);
+                }}
+            />
             <button
                 // Actualizar estado con un evento onClick en el boton 
                 // Funciones "prevState" dentro de los actualizadores del estado para la función setError
                 // "setError(prevState => !prevState)"
-                onClick={() => setLoading(true)}
+                onClick={() => {
+                    // setError(false)
+                    setLoading(true);
+                }}
             >Comprobar</button>
         </div>
     );
