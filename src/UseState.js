@@ -10,7 +10,7 @@ function UseState({ name }) {
         value: '',
         error: false,
         loading: false,
-        delete: false,
+        deleted: false,
         confirmed: false,
     });
 
@@ -21,6 +21,54 @@ function UseState({ name }) {
 
     console.log(state)
 
+    // evento actualizador del estado
+    const onConfirm = () => {
+        setState({
+            // Guarda el estado anterior
+            ...state,
+            loading: false,
+            error: false,
+            confirmed: true,
+        });
+    };
+    //
+    const onError = () => {
+        setState({
+            ...state,
+            error: true,
+            loading: false
+        });
+    };
+    //
+    const onWrite = (newValue) => {
+        setState({
+            ...state,
+            value: newValue,
+        });
+    }
+    //
+    const onCheck = () => {
+        setState({
+            ...state,
+            loading: true
+        });
+    }
+    //
+    const onDelete = () => {
+        setState({ 
+            ...state,
+            deleted: true,
+        });
+    }
+    //
+    const onReset = () => {
+        setState({ 
+            ...state,
+            confirmed: false,
+            deleted: false,
+            value: '',
+        });
+    }
     // Se utiliza el React Hook para el efecto de loading
     // El segundo argumento indica cunado se par generea el efecto o función
     React.useEffect(() => {
@@ -32,22 +80,9 @@ function UseState({ name }) {
                 console.log('Empezando validación')
 
                 if (state.value === SECURITY_CODE){
-                    setState({
-                        // Guarda el estado anterior
-                        ...state,
-                        loading: false,
-                        error: false,
-                    });
-                    //setLoading(false);
-                    // setError(false);
+                    onConfirm();
                 } else {
-                    setState({
-                        ...state,
-                        error: true,
-                        loading: false
-                    });
-                    // setError(true);
-                    // setLoading(false);
+                    onError();
                 }
                 
                 console.log('Terminando validación')
@@ -59,53 +94,84 @@ function UseState({ name }) {
     // Para que se ejecute el efecto solo cuando se actualiza el esato de carga
     }, [state.loading]);
 
-    return (
-        <div>
-            {/* si el argumento es props usar props.name */}
-            <h2>Eliminar {name}</h2>
+    if (!state.deleted && !state.confirmed) {
+        return (
+            <div>
+                {/* si el argumento es props usar props.name */}
+                <h2>Eliminar {name}</h2>
+    
+                <p>Por favor escribe el código de seguridad</p>
+    
+                {/* Si error es verdadero renderiza */}
+                {(state.error && !state.loading) && (
+                    <p>Error: El código es incorrecto</p>
+                )}
+    
+                {/* Si loading es verdadero */}
+                {state.loading && (
+                    <p>Cargando... </p>
+                )}
+    
+                <input 
+                    placeholder="Código de seguridad"
+                    value={state.value}
+                    // Actualizador del estado cuando los uarios cambien lo que escriben en el input
+                    // se recibe el evento
+                    onChange={(event) => {
+                        onWrite(event.target.value);
+                    }}
+                />
+                <button
+                    // Actualizar estado con   un evento onClick en el boton 
+                    onClick={() => {
+                        onCheck();
+                    }}
+                >Comprobar</button>
+            </div>
+        );
+    } else if (!!state.confirmed && !state.deleted) {
+        return (
+            <React.Fragment>
+                <p>Estado de confirmación</p>
 
-            <p>Por favor escribe el código de seguridad</p>
+                <button
+                    // Se llama al evento onClick
+                    onClick={() => {
+                        onDelete();
+                    }}
+                >
+                    Si, Eliminar
 
-            {/* Si error es verdadero renderiza */}
-            {(state.error && !state.loading) && (
-                <p>Error: El código es incorrecto</p>
-            )}
+                </button>
 
-            {/* Si loading es verdadero */}
-            {state.loading && (
-                <p>Cargando... </p>
-            )}
+                <button
+                    // Se llama al evento onClick
+                    onClick={() => {
+                        onReset();
+                    }}
+                >
+                    No, desistir
 
-            <input 
-                placeholder="Código de seguridad"
-                value={state.value}
-                // Actualizador del estado cuando los uarios cambien lo que escriben en el input
-                // se recibe el evento
-                onChange={(event) => {
-                    setState({
-                        ...state,
-                        value: event.target.value,
-                    });
-                    // setError(false);
-                    // el nuevo valor
-                    // setValue(event.target.value);
-                }}
-            />
-            <button
-                // Actualizar estado con   un evento onClick en el boton 
-                // Funciones "prevState" dentro de los actualizadores del estado para la función setError
-                // "setError(prevState => !prevState)"
-                onClick={() => {
-                    setState({
-                        ...state,
-                        loading: true
-                    });
-                    // setError(false)
-                    // setLoading(true);
-                }}
-            >Comprobar</button>
-        </div>
-    );
+                </button>
+            </React.Fragment>
+        );
+    } else {
+        return (
+            <React.Fragment>
+                <p>Eliminado con éxito</p>
+
+                <button
+                    // Se llama al evento onClick
+                    onClick={() => {
+                        onReset();
+                    }}
+                >
+                    resetear, volver atras
+
+                </button>
+            </React.Fragment>
+        );
+    }
 }
 
 export { UseState }
