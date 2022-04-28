@@ -13,29 +13,31 @@ function UseReducer({ name }) {
 
     const [state, dispatch] = React.useReducer(reducer, initialState);
 
-    //
-    // const onWrite = (newValue) => {
-    //     setState({
-    //         ...state,
-    //         value: newValue,
-    //     });
+    // Funciones actualizadoras del estado, "action creators"
+
+    const onConfirm = () => dispatch({ type: actionTypes.confirm });
+    const onError = () => dispatch({ type: actionTypes.error });
+    const onCheck = () => dispatch({ type: actionTypes.check });
+    const onDelete = () => dispatch({ type: actionTypes.delete });
+    const onReset = () => dispatch({ type: actionTypes.reset });
+    const onWrite = (event) => dispatch({ type: actionTypes.write, payload: event.target.value });
+
+    // const onWrite = ({ target: {value} }) => {
+        // dispatch({ type: actionTypes.write, payload: value });
     // }
-    // Se utiliza el React Hook para el efecto de loading
-    // El segundo argumento indica cunado se par generea el efecto o función
+    
     React.useEffect(() => {
         console.log('Empezando el efecto')
 
         if(!!state.loading) {
-            // Recibe dos argumentos la funcion y el intervalo de cafa cuanto s ejecuta la misma
+            // Recibe dos argumentos la funcion y el intervalo de cada cuanto se ejecuta la misma
             setTimeout(() => {
                 console.log('Empezando validación')
 
                 if (state.value === SECURITY_CODE){
-                    // onConfirm();
-                    dispatch({ type: 'CONFIRM' });
+                    onConfirm();
                 } else {
-                    // onError();
-                    dispatch({ type: 'ERROR' });
+                    onError();
                 }
                 
                 console.log('Terminando validación')
@@ -70,19 +72,11 @@ function UseReducer({ name }) {
                     value={state.value}
                     // Actualizador del estado cuando los uarios cambien lo que escriben en el input
                     // se recibe el evento
-                    onChange={(event) => {
-                        // onWrite(event.target.value);
-                        // dispatch({ type: 'WRITE', payload: { ...} });
-                        dispatch({ type: 'WRITE', payload: event.target.value });
-                    }}
+                    onChange={onWrite}
                 />
-                <button
-                    // Actualizar estado con   un evento onClick en el boton 
-                    onClick={() => {
-                        // onCheck();
-                        dispatch({ type: 'CHECK' });
-                    }}
-                >Comprobar</button>
+                <button onClick={onCheck}>
+                    Comprobar
+                </button>
             </div>
         );
     } else if (!!state.confirmed && !state.deleted) {
@@ -90,26 +84,12 @@ function UseReducer({ name }) {
             <React.Fragment>
                 <p>Estado de confirmación</p>
 
-                <button
-                    // Se llama al evento onClick
-                    onClick={() => {
-                        // onDelete();
-                        dispatch({ type: 'DELETE' });
-                    }}
-                >
+                <button onClick={onDelete}>
                     Si, Eliminar
-
                 </button>
 
-                <button
-                    // Se llama al evento onClick
-                    onClick={() => {
-                        // onReset();
-                        dispatch({ type: 'RESET' });
-                    }}
-                >
+                <button onClick={onReset}>
                     No, desistir
-
                 </button>
             </React.Fragment>
         );
@@ -118,13 +98,7 @@ function UseReducer({ name }) {
             <React.Fragment>
                 <p>Eliminado con éxito</p>
 
-                <button
-                    // Se llama al evento onClick
-                    onClick={() => {
-                        // onReset();
-                        dispatch({ type: 'RESET' });
-                    }}
-                >
+                <button onClick={onReset}>
                     resetear, volver atras
 
                 </button>
@@ -140,6 +114,17 @@ const initialState = {
     deleted: false,
     confirmed: false,
 };
+
+// actionTypes para evitar errores orotgráficos 
+
+const actionTypes = {
+    confirm: 'CONFIRM',
+    error: 'ERROR',
+    delete: 'DELETE',
+    write: 'WRITE',
+    check: 'CHECK',
+    reset: 'RESET',
+}
 
 // formas de crear un reducer
 
@@ -192,31 +177,31 @@ const initialState = {
 // 3 reducer de como objeto, arrow function para retornar se forma implicita
 
 const reducerObject = (state, payload) => ({
-    'CONFIRM': {
+    [actionTypes.confirm]: {
         // Guarda el estado anterior
         ...state,
         loading: false,
         error: false,
         confirmed: true,
     },
-    'ERROR': {
+    [actionTypes.error]: {
         ...state,
         error: true,
         loading: false,
     },
-    'WRITE': {
+    [actionTypes.write]: {
         ...state,
         value: payload
     },
-    'CHECK': {
+    [actionTypes.check]: {
         ...state,
         loading: true,
     },
-    'DELETE': { 
+    [actionTypes.delete]: { 
         ...state,
         deleted: true,
     },
-    'RESET': { 
+    [actionTypes.reset]: { 
         ...state,
         confirmed: false,
         deleted: false,
